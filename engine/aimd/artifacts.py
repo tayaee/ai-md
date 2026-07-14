@@ -76,14 +76,19 @@ def atomic_write(path: Path, text: str) -> None:
 
 
 def list_specs(settings: Settings) -> list[str]:
-    """Sorted list of *.ai.md filenames in src_dir. Does not look into subdirectories.
-    Returns an empty list if src_dir doesn't exist, isn't a directory, or isn't
-    accessible (so the caller can handle it safely without extra branching)."""
+    """Sorted list of *.ai.md paths in src_dir, recursing into subdirectories
+    (issue-53). Each entry is src_dir-relative, POSIX-slash-joined (e.g.
+    "app/tetris.ai.md") to match the `name` format main.py builds from the
+    URL. [] if src_dir doesn't exist, isn't a directory, or isn't accessible."""
     src = settings.src_dir
     if not src.exists() or not src.is_dir():
         return []
     try:
-        names = [p.name for p in src.iterdir() if p.is_file() and p.name.endswith(".ai.md")]
+        names = [
+            p.relative_to(src).as_posix()
+            for p in src.rglob("*.ai.md")
+            if p.is_file()
+        ]
     except OSError:
         return []
     return sorted(names)

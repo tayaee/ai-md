@@ -8,7 +8,7 @@ def test_load_settings_default(monkeypatch):
     monkeypatch.setenv("LLM_API_KEY", "test-api-key")
     monkeypatch.delenv("LLM_BASE_URL", raising=False)
     monkeypatch.delenv("LLM_MODEL", raising=False)
-    monkeypatch.delenv("AIMD_MAX_TOKENS", raising=False)
+    monkeypatch.delenv("LLM_MAX_TOKENS", raising=False)
     monkeypatch.delenv("AIMD_SRC_DIR", raising=False)
     monkeypatch.delenv("AIMD_DIST_DIR", raising=False)
 
@@ -34,7 +34,7 @@ def test_load_settings_override(monkeypatch):
     monkeypatch.setenv("LLM_API_KEY", "override-key")
     monkeypatch.setenv("LLM_BASE_URL", "https://custom.api/v1")
     monkeypatch.setenv("LLM_MODEL", "custom-model")
-    monkeypatch.setenv("AIMD_MAX_TOKENS", "50000")
+    monkeypatch.setenv("LLM_MAX_TOKENS", "50000")
     monkeypatch.setenv("AIMD_SRC_DIR", "/tmp/custom_src")
     monkeypatch.setenv("AIMD_DIST_DIR", "/tmp/custom_dist")
 

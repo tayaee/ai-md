@@ -43,13 +43,14 @@ def _client(dispatcher: AIMDDispatcher) -> httpx.AsyncClient:
     )
 
 
-# Case 1: GET / -> 302, Location /index.ai.md
+# Case 1: GET / -> 404. Root is a plain static page served directly by nginx
+# (ADR-0001 revision); it's outside the .ai.md pipeline, so the engine doesn't
+# handle it specially -- it just falls through the _AIMD_RE non-match branch.
 @pytest.mark.asyncio
-async def test_root_redirects_to_index(dispatcher: AIMDDispatcher) -> None:
+async def test_root_not_handled_by_engine(dispatcher: AIMDDispatcher) -> None:
     async with _client(dispatcher) as c:
         r = await c.get("/", follow_redirects=False)
-    assert r.status_code == 302
-    assert r.headers["location"] == "/index.ai.md"
+    assert r.status_code == 404
 
 
 # Case 2: GET /nonexistent.ai.md -> 404
@@ -224,6 +225,64 @@ async def test_py_subapp_receives_correct_scope(
     # matching must succeed (= same bytes as path).
     assert body["raw_path"] == "/convert"
 
+
+
+# issue-53: .ai.md routing must work for specs nested under a directory
+# prefix, not just root-level names. GET /app/tetris.ai.md should map to
+# src/app/tetris.ai.md and dist/app/tetris.ai.md.html -- same mechanics as a
+# flat name, just with a slash in it.
+@pytest.mark.asyncio
+async def test_nested_dir_spa_served(
+    dispatcher: AIMDDispatcher, test_settings: Settings
+) -> None:
+    name = "app/tetris.ai.md"
+    spec_file = test_settings.src_dir / name
+    spec_file.parent.mkdir(parents=True, exist_ok=True)
+    spec_file.write_text("spec", encoding="utf-8")
+
+    html_file = artifacts.html_path(name, test_settings)
+    html_file.parent.mkdir(parents=True, exist_ok=True)
+    html_file.write_text("<html><body>nested</body></html>", encoding="utf-8")
+
+    async with _client(dispatcher) as c:
+        r = await c.get(f"/{name}")
+    assert r.status_code == 200
+    assert "nested" in r.text
+
+
+# issue-53: nested-directory py sub-app must receive the same root_path/
+# raw_path scope adjustment as a root-level one, just with the directory
+# prefix included.
+@pytest.mark.asyncio
+async def test_nested_dir_py_subapp_receives_correct_scope(
+    dispatcher: AIMDDispatcher, test_settings: Settings
+) -> None:
+    name = "api/v1/convert.ai.md"
+    spec_file = test_settings.src_dir / name
+    spec_file.parent.mkdir(parents=True, exist_ok=True)
+    spec_file.write_text("api spec", encoding="utf-8")
+
+    py_file = artifacts.py_path(name, test_settings)
+    py_file.parent.mkdir(parents=True, exist_ok=True)
+    py_file.write_text(
+        "import json\n"
+        "async def app(scope, receive, send):\n"
+        "    body = json.dumps({\n"
+        "        'root_path': scope.get('root_path'),\n"
+        "        'path': scope.get('path'),\n"
+        "    }).encode('utf-8')\n"
+        "    await send({'type': 'http.response.start', 'status': 200,\n"
+        "                'headers': [(b'content-type', b'application/json')]})\n"
+        "    await send({'type': 'http.response.body', 'body': body})\n",
+        encoding="utf-8",
+    )
+
+    async with _client(dispatcher) as c:
+        r = await c.post(f"/{name}/convert")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["root_path"] == f"/{name}"
+    assert body["path"] == "/convert"
 
 
 # Case 9: non-http types like lifespan are ignored

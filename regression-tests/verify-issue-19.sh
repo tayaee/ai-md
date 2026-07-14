@@ -18,8 +18,11 @@ if ! grep -A6 'def list_specs' "$TARGET" | grep -qE 'is_dir\(\)|OSError'; then
 fi
 
 # 2) Verify the normal *.ai.md sorted-return spec is unchanged — existing
-#    core logic is preserved.
-grep -q 'endswith(".ai.md")' "$TARGET" \
+#    core logic is preserved. issue-53 switched the filter mechanism from a
+#    flat iterdir()+endswith(".ai.md") scan to a recursive rglob("*.ai.md")
+#    (see regression-tests/verify-issue-19.conflict-with-53.md), so either
+#    form is accepted here.
+grep -qE 'endswith\(".ai.md"\)|rglob\("\*.ai.md"\)' "$TARGET" \
   || fail "$TARGET list_specs lost the .ai.md suffix filter"
 grep -q 'sorted(' "$TARGET" \
   || fail "$TARGET list_specs lost the sorted() return"

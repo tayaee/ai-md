@@ -22,14 +22,17 @@ if [ ! -f "docker-compose.yml" ]; then
     exit 1
 fi
 grep -q "build: ./engine" docker-compose.yml
-grep -q "env_file: .env" docker-compose.yml
+# env_file: .env was replaced by environment:/${VAR:-default} interpolation
+# so shell-supplied env vars always take priority over any .env file (see
+# regression-tests/verify-issue-13.conflict-with-docker-env-redesign.md).
+grep -q "environment:" docker-compose.yml
 grep -q "ports:" docker-compose.yml
 grep -q "8080:80" docker-compose.yml
 grep -q "depends_on:" docker-compose.yml
 echo "docker-compose.yml checked successfully."
 
 echo "=== 3. Checking README.md ==="
-grep -q "docker compose up --build" README.md
+grep -q "docker compose up -d" README.md
 grep -q "localhost:8080" README.md
 echo "README.md checked successfully."
 

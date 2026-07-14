@@ -44,7 +44,7 @@ MiniMax-M3 (claude-opus-4-8, 2025-Q4)
   raise RuntimeError("empty LLM response")
   ```
 - **실패 시나리오**:
-  1. `AIMD_MAX_TOKENS=300000` 처럼 충분히 큰 값으로 설정한다.
+  1. `LLM_MAX_TOKENS=300000` 처럼 충분히 큰 값으로 설정한다.
   2. MiniMax API가 모든 호출에서 `openai.BadRequestError("max_tokens too large")` 를 반환한다고 가정한다.
   3. 루프 추적(검증됨):
      - iter 0: tokens=300000 → fail → `300000//2=150000`, continue
@@ -61,7 +61,7 @@ MiniMax-M3 (claude-opus-4-8, 2025-Q4)
   - M = 262207 → `BadRequestError` (정상 전파, 7회 시도)
   - M = 262208 → `RuntimeError("empty LLM response")` (마스킹)
   - M = 524288 → 동일하게 `RuntimeError` (기존 gemini 리뷰의 임계값 524288은 너무 큼 — 실제로는 그 절반 지점부터 발생)
-  - 기본 `AIMD_MAX_TOKENS=200000` 은 262144 미만이라 `BadRequestError` 로 정상 전파됨. 즉 **현장 기본 설정에서는 재현되지 않지만, 환경 변수만 바꾸면 즉시 발현**.
+  - 기본 `LLM_MAX_TOKENS=200000` 은 262144 미만이라 `BadRequestError` 로 정상 전파됨. 즉 **현장 기본 설정에서는 재현되지 않지만, 환경 변수만 바꾸면 즉시 발현**.
 - **확인 방법** (직접 재현함):
   ```python
   # engine 디렉터리에서 실행

@@ -20,7 +20,7 @@ if command -v docker >/dev/null 2>&1 && docker ps >/dev/null 2>&1; then
     
     # 2. Write temp stub artifacts for smoke test
     echo "Writing stub artifacts..."
-    echo "<!DOCTYPE html><html><body>SMOKE</body></html>" > dist/index.ai.md.html
+    echo "<!DOCTYPE html><html><body>SMOKE</body></html>" > dist/tetris.ai.md.html
     cat << 'EOF' > dist/convert.ai.md.py
 from fastapi import FastAPI
 app = FastAPI()
@@ -43,19 +43,25 @@ EOF
     # 5. Run curls
     echo "Running E2E Curl verifications..."
     
-    # Test 1: GET / -> 302, location /index.ai.md
-    LOC=$(curl -s -I http://localhost:8080/ | grep -i "location:" | tr -d '\r')
-    echo "Redirect Location: $LOC"
-    if [[ "$LOC" != *"index.ai.md"* ]]; then
-        echo "Error: Redirect to index.ai.md failed"
+    # Test 1: GET / -> 200, plain static public/index.html (outside the .ai.md
+    # pipeline, no redirect -- ADR-0001 revision)
+    STATUS_ROOT=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+    if [ "$STATUS_ROOT" -ne 200 ]; then
+        echo "Error: GET / returned $STATUS_ROOT, expected 200"
         docker compose down
         exit 1
     fi
-    
-    # Test 2: GET /index.ai.md -> 200 + SMOKE
-    BODY=$(curl -s http://localhost:8080/index.ai.md)
+    BODY_ROOT=$(curl -s http://localhost:8080/)
+    if [[ "$BODY_ROOT" != *"AIMD"* ]]; then
+        echo "Error: root body does not look like public/index.html"
+        docker compose down
+        exit 1
+    fi
+
+    # Test 2: GET /tetris.ai.md -> 200 + SMOKE
+    BODY=$(curl -s http://localhost:8080/tetris.ai.md)
     if [[ "$BODY" != *"SMOKE"* ]]; then
-        echo "Error: index.ai.md body does not contain SMOKE"
+        echo "Error: tetris.ai.md body does not contain SMOKE"
         docker compose down
         exit 1
     fi
@@ -100,17 +106,22 @@ else
     echo "Warning: Docker is not installed or running. Running offline validation..."
     
     # Offline check: verify our actual generated dist files exist and are correct
-    if [ ! -f "dist/index.ai.md.html" ]; then
-        echo "Error: dist/index.ai.md.html is missing"
+    if [ ! -f "public/index.html" ]; then
+        echo "Error: public/index.html is missing"
+        exit 1
+    fi
+    if [ ! -f "dist/tetris.ai.md.html" ]; then
+        echo "Error: dist/tetris.ai.md.html is missing"
         exit 1
     fi
     if [ ! -f "dist/convert.ai.md.py" ]; then
         echo "Error: dist/convert.ai.md.py is missing"
         exit 1
     fi
-    
-    # Check key contents of dist files
-    grep -q "AIMD Tetris" dist/index.ai.md.html
+
+    # Check key contents of dist/public files
+    grep -q "AIMD" public/index.html
+    grep -q "AIMD" dist/tetris.ai.md.html
     grep -q "fastapi" dist/convert.ai.md.py
     grep -q "convert_temp" dist/convert.ai.md.py
     

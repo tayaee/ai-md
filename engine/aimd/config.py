@@ -20,7 +20,6 @@ class Settings:
     provider: str = "openai"
 
 
-
 def load_settings() -> Settings:
     """Read settings from environment variables. Raises RuntimeError if LLM_API_KEY is missing."""
     api_key = os.environ.get("LLM_API_KEY", "")
@@ -30,7 +29,7 @@ def load_settings() -> Settings:
         api_key=api_key,
         base_url=os.environ.get("LLM_BASE_URL", "https://api.minimax.io/v1"),
         model=os.environ.get("LLM_MODEL", "MiniMax-M3"),
-        max_tokens=int(os.environ.get("AIMD_MAX_TOKENS", "200000")),
+        max_tokens=int(os.environ.get("LLM_MAX_TOKENS", "200000")),
         src_dir=Path(os.environ.get("AIMD_SRC_DIR", "./src")),
         dist_dir=Path(os.environ.get("AIMD_DIST_DIR", "./dist")),
         compile_backoff_init_s=int(os.environ.get("AIMD_COMPILE_BACKOFF_INIT_S", "30")),

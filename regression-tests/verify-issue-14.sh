@@ -5,8 +5,12 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 echo "=== 1. Checking dist files (Frozen Artifacts) ==="
-if [ ! -f "dist/index.ai.md.html" ]; then
-    echo "ERROR: dist/index.ai.md.html not found"
+if [ ! -f "dist/tetris.ai.md.html" ]; then
+    echo "ERROR: dist/tetris.ai.md.html not found"
+    exit 1
+fi
+if [ ! -f "public/index.html" ]; then
+    echo "ERROR: public/index.html not found"
     exit 1
 fi
 if [ ! -f "dist/convert.ai.md.py" ]; then

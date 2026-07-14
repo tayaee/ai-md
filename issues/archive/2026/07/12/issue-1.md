@@ -28,7 +28,7 @@ LLM_API_KEY=your-key-here
 # 아래는 전부 선택 (기본값 있음)
 #LLM_BASE_URL=https://api.minimax.io/v1
 #LLM_MODEL=MiniMax-M3
-#AIMD_MAX_TOKENS=200000
+#LLM_MAX_TOKENS=200000
 ```
 
 ### 3. `engine/requirements.txt`

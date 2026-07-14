@@ -58,8 +58,8 @@ check "main.py calls registry.get" \
     grep -qE "self\.registry\.get" engine/aimd/main.py
 
 # 5. test_main core case keywords
-check "test_main covers root redirect" \
-    grep -qE "root_redirects|/index.ai.md" engine/tests/test_main.py
+check "test_main covers root not handled by engine" \
+    grep -qE "root_not_handled|root_redirects" engine/tests/test_main.py
 
 check "test_main covers 404 for missing spec" \
     grep -qE "missing_spec.*404|404" engine/tests/test_main.py

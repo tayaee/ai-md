@@ -16,7 +16,7 @@ test -f engine/aimd/__init__.py || fail "engine/aimd/__init__.py missing"
 test -f engine/tests/__init__.py || fail "engine/tests/__init__.py missing"
 test -f dist/.gitkeep || fail "dist/.gitkeep missing"
 
-test -f src/index.ai.md || fail "src/index.ai.md missing"
+test -f src/tetris.ai.md || fail "src/tetris.ai.md missing"
 test -f src/convert.ai.md || fail "src/convert.ai.md missing"
 
 test -f README.md || fail "README.md missing"

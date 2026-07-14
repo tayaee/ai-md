@@ -15,7 +15,7 @@
 - `LLM_API_KEY` (필수, 기본값 없음)
 - `LLM_BASE_URL` (기본 `https://api.minimax.io/v1`)
 - `LLM_MODEL` (기본 `MiniMax-M3`)
-- `AIMD_MAX_TOKENS` (기본 `200000`)
+- `LLM_MAX_TOKENS` (기본 `200000`)
 
 `max_tokens`는 **출력 토큰 상한**이다(컨텍스트 윈도우 아님). 모델별 출력 상한이
 별도로 낮게 걸린 경우 API가 400을 반환하므로, **값을 절반으로 줄여 재시도**

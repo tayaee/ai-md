@@ -15,9 +15,11 @@ from .registry import AppRegistry
 
 log = logging.getLogger("aimd.main")
 
-# Regex that matches only the /<name>.ai.md[/<subpath>] shape. The ^/ anchor
-# restricts it to host-only root; subpath is optional as /(one or more slashes, then .*).
-_AIMD_RE = re.compile(r"^/([^/]+\.ai\.md)(/.*)?$")
+# Regex that matches the /<name>.ai.md[/<subpath>] shape, where <name> may
+# itself contain directory segments (issue-53), e.g. /app/tetris.ai.md or
+# /api/v1/convert.ai.md. The ^/ anchor restricts it to host-only root;
+# subpath is optional as /(one or more slashes, then .*).
+_AIMD_RE = re.compile(r"^/((?:[^/]+/)*[^/]+\.ai\.md)(/.*)?$")
 
 
 def create_app() -> "AIMDDispatcher":
@@ -57,9 +59,6 @@ class AIMDDispatcher:
             return  # ignore things like lifespan (run with uvicorn --lifespan off)
 
         path = scope["path"]
-        if path == "/":
-            return await _redirect(send, "/index.ai.md")
-
         m = _AIMD_RE.match(path)
         if not m:
             return await _plain(send, 404, "not found")

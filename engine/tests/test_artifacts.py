@@ -130,13 +130,15 @@ def test_list_specs(test_settings):
     (test_settings.src_dir / "a.ai.md").touch()
     (test_settings.src_dir / "other.txt").touch()
 
-    # Create a subdirectory and add a file
+    # Create a subdirectory and add a file (issue-53: nested specs are found
+    # too, returned as a POSIX-style relative path so it matches the `name`
+    # format main.py builds from the URL, regardless of host OS)
     sub_dir = test_settings.src_dir / "sub"
     sub_dir.mkdir()
     (sub_dir / "c.ai.md").touch()
 
-    # Sorted filename list
-    assert list_specs(test_settings) == ["a.ai.md", "b.ai.md"]
+    # Sorted, includes the nested spec
+    assert list_specs(test_settings) == ["a.ai.md", "b.ai.md", "sub/c.ai.md"]
 
 
 def test_list_specs_src_is_regular_file(test_settings):
