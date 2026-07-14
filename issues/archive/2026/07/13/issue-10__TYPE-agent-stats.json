@@ -1,0 +1,66 @@
+{
+  "issue": 10,
+  "started": "2026-07-14T01:59:27Z",
+  "coders": {
+    "sonnet": {
+      "model": "claude-sonnet-5",
+      "mvp": {
+        "ts": "2026-07-14T02:17:17Z",
+        "loc_added": 699,
+        "static_analysis_failures": {
+          "ruff": null,
+          "pyright": null
+        }
+      },
+      "review_outcome": {
+        "ts": "2026-07-14T02:30:42Z",
+        "findings_received": 0,
+        "must_fix_count": 0,
+        "good_to_fix_count": 0,
+        "refix_plans_written": 1
+      }
+    }
+  },
+  "reviewers": {
+    "gemini": {
+      "model": "Gemini 3.5 Flash (Medium)",
+      "findings": 4,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 3,
+      "good_to_fix": 1
+    },
+    "sonnet": {
+      "model": "Sonnet 5 (claude-sonnet-5)",
+      "findings": 0,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 0,
+      "good_to_fix": 0
+    }
+  },
+  "derived_by_reviewers": [
+    "issue-49-fixing-10-asgi-scope-raw-path-not-updated-on-sub-app__BY-gemini-sonnet.md",
+    "issue-50-fixing-10-appregistry-single-lock-serializes-unrelated-sub__BY-gemini-sonnet.md",
+    "issue-51-fixing-10-stale-serving-retries-compile-on-every-request__BY-gemini-sonnet.md",
+    "issue-52-fixing-10-load-module-does-not-register-in-sys-modules-so__STATE-later__BY-gemini-sonnet.md"
+  ],
+  "cost_details": [
+    {
+      "ts": "2026-07-13T22:17:24-04:00",
+      "model": "sonnet",
+      "five_hour_used_pct": 49.0,
+      "seven_day_used_pct": 53.0,
+      "credit_available_usd": null,
+      "description": "after mvp"
+    }
+  ],
+  "cost_summary": {
+    "sonnet": {
+      "five_hour_sum": 49.0,
+      "seven_day_sum": 53.0
+    }
+  },
+  "archived": "2026-07-14T02:18:23Z",
+  "duration": "PT18M57S"
+}

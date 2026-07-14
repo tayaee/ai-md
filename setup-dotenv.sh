@@ -1,0 +1,192 @@
+#!/bin/bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# The aimd engine (engine/aimd/config.py, engine/aimd/llm.py) calls the LLM
+# using the LLM_API_KEY / LLM_BASE_URL / LLM_MODEL / LLM_API_PROTOCOL env vars.
+# This script lets you pick a provider and model, sends a real ping to verify
+# it works, updates .env, and shows how to rebuild/redeploy with docker compose.
+
+echo "=== aimd backend LLM provider setup ==="
+echo ""
+echo "Choose a provider to use:"
+echo "  1) openai"
+echo "  2) deepseek"
+echo "  3) minimax (previous default)"
+echo "  4) claude  (calls the Anthropic Messages API directly)"
+echo "  5) openrouter"
+echo ""
+read -rp "Enter number [1-5]: " CHOICE
+
+case "$CHOICE" in
+    1)
+        PROVIDER="openai"
+        DEFAULT_BASE_URL="https://api.openai.com/v1"
+        PING_STYLE="openai"
+        MODEL_OPTIONS=("gpt-5.4-mini" "gpt-5.4" "gpt-5.4-nano")
+        ;;
+    2)
+        PROVIDER="deepseek"
+        DEFAULT_BASE_URL="https://api.deepseek.com/v1"
+        PING_STYLE="openai"
+        MODEL_OPTIONS=("deepseek-v4-flash" "deepseek-chat" "deepseek-reasoner")
+        ;;
+    3)
+        PROVIDER="minimax"
+        DEFAULT_BASE_URL="https://api.minimax.io/v1"
+        PING_STYLE="openai"
+        MODEL_OPTIONS=("MiniMax-M3" "MiniMax-Text-01")
+        ;;
+    4)
+        PROVIDER="claude"
+        DEFAULT_BASE_URL="https://api.anthropic.com/v1"
+        PING_STYLE="anthropic"
+        MODEL_OPTIONS=("claude-sonnet-5" "claude-opus-4-8" "claude-haiku-4-5")
+        # When provider="claude", engine/aimd/llm.py uses a separate code path
+        # (_chat_anthropic) that calls the Anthropic Messages API directly.
+        ;;
+    5)
+        PROVIDER="openrouter"
+        DEFAULT_BASE_URL="https://openrouter.ai/api/v1"
+        PING_STYLE="openai"
+        MODEL_OPTIONS=("z-ai/glm-5.2" "z-ai/glm-4.6" "anthropic/claude-sonnet-5")
+        ;;
+    *)
+        echo "Invalid choice: $CHOICE" >&2
+        exit 1
+        ;;
+esac
+
+echo ""
+echo "Choose a model:"
+i=1
+for m in "${MODEL_OPTIONS[@]}"; do
+    echo "  $i) $m"
+    i=$((i + 1))
+done
+echo "  $i) Enter manually"
+echo ""
+read -rp "Enter number [1-$i]: " MODEL_CHOICE
+
+if [ "$MODEL_CHOICE" -ge 1 ] 2>/dev/null && [ "$MODEL_CHOICE" -lt "$i" ] 2>/dev/null; then
+    MODEL="${MODEL_OPTIONS[$((MODEL_CHOICE - 1))]}"
+elif [ "$MODEL_CHOICE" = "$i" ]; then
+    read -rp "Enter model name: " MODEL
+    if [ -z "$MODEL" ]; then
+        echo "Error: model name is empty." >&2
+        exit 1
+    fi
+else
+    echo "Invalid choice: $MODEL_CHOICE" >&2
+    exit 1
+fi
+
+# `read -s`는 입력을 아예 표시하지 않아 ctrl-v/마우스 붙여넣기 시 아무 반응이
+# 없는 것처럼 보인다. 한 글자씩 읽어 매 문자마다 '*'를 출력하면 붙여넣기로
+# 한꺼번에 들어오는 문자들도 스트림으로 전달되므로 동일하게 마스킹된다.
+prompt_masked() {
+    local prompt="$1"
+    local __resultvar="$2"
+    local input=""
+    local char
+    printf '%s' "$prompt"
+    while IFS= read -rs -n1 char; do
+        # Enter (read -n1 returns empty $char when it hits a newline)
+        if [ -z "$char" ]; then
+            break
+        fi
+        # Backspace / Delete
+        if [ "$char" = $'\x7f' ] || [ "$char" = $'\x08' ]; then
+            if [ -n "$input" ]; then
+                input="${input%?}"
+                printf '\b \b'
+            fi
+        else
+            input="${input}${char}"
+            printf '*'
+        fi
+    done
+    echo ""
+    printf -v "$__resultvar" '%s' "$input"
+}
+
+prompt_masked "Enter API key ($PROVIDER): " API_KEY
+if [ -z "$API_KEY" ]; then
+    echo "Error: API key is empty." >&2
+    exit 1
+fi
+
+read -rp "Base URL [$DEFAULT_BASE_URL]: " BASE_URL
+BASE_URL="${BASE_URL:-$DEFAULT_BASE_URL}"
+
+echo ""
+echo "=== Ping test (${PROVIDER}, ${MODEL}) ==="
+
+if [ "$PING_STYLE" = "openai" ]; then
+    RESPONSE=$(curl -s -w '\n%{http_code}' "${BASE_URL%/}/chat/completions" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${API_KEY}" \
+        -d "$(jq -n --arg model "$MODEL" '{model: $model, max_tokens: 1, messages: [{role: "user", content: "ping"}]}')")
+    HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+    BODY=$(echo "$RESPONSE" | sed '$d')
+else
+    RESPONSE=$(curl -s -w '\n%{http_code}' "${BASE_URL%/}/messages" \
+        -H "Content-Type: application/json" \
+        -H "x-api-key: ${API_KEY}" \
+        -H "anthropic-version: 2023-06-01" \
+        -d "$(jq -n --arg model "$MODEL" '{model: $model, max_tokens: 1, messages: [{role: "user", content: "ping"}]}')")
+    HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+    BODY=$(echo "$RESPONSE" | sed '$d')
+fi
+
+if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+    echo "Success: HTTP $HTTP_CODE"
+else
+    echo "Failure: HTTP $HTTP_CODE" >&2
+    echo "$BODY" | jq . 2>/dev/null || echo "$BODY" >&2
+    echo "" >&2
+    echo "Exiting without writing .env. Check your API key/Base URL/model name." >&2
+    exit 1
+fi
+
+echo ""
+echo "=== Updating .env ==="
+
+if [ "$PROVIDER" = "claude" ]; then
+    LLM_API_PROTOCOL="claude"
+else
+    LLM_API_PROTOCOL="openai"
+fi
+
+cat > .env <<EOF
+# Generated by setup-dotenv.sh ($(date -u +%Y-%m-%dT%H:%M:%SZ))
+# provider: ${PROVIDER}
+LLM_API_KEY=${API_KEY}
+LLM_BASE_URL=${BASE_URL}
+LLM_MODEL=${MODEL}
+# Used by engine/aimd/llm.py to branch the call style (openai-compatible vs anthropic).
+LLM_API_PROTOCOL=${LLM_API_PROTOCOL}
+EOF
+chmod 600 .env
+
+echo "Done: .env file has been written (${REPO_ROOT}/.env)."
+echo ""
+echo "=== Next step: redeploy with docker compose ==="
+echo ""
+echo "  First deployment (no containers yet):"
+echo "    docker compose up -d --build"
+echo ""
+echo "  If only .env (LLM provider) changed while already running — the engine"
+echo "  container must be force-recreated for the new env to take effect (a plain"
+echo "  restart may not reread env_file):"
+echo "    docker compose up -d --force-recreate engine"
+echo ""
+echo "  If the Dockerfile/source code also changed, add --build:"
+echo "    docker compose up -d --build --force-recreate engine"
+echo ""
+echo "Sample URLs to verify:"
+echo "  http://localhost:8080/            (redirects to index.ai.md)"
+echo "  http://localhost:8080/convert.ai.md"
+echo "  http://localhost:8080/tetris.ai.md"

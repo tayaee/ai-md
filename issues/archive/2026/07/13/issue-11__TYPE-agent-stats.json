@@ -1,0 +1,39 @@
+{
+  "issue": 11,
+  "started": "2026-07-13T23:15:19-04:00",
+  "coders": {
+    "gemini": {
+      "model": "Gemini 3.5 Flash (Medium)",
+      "review_outcome": {
+        "ts": "2026-07-13T23:16:30-04:00",
+        "findings_received": 0,
+        "must_fix_count": 0,
+        "good_to_fix_count": 0,
+        "refix_plans_written": 0
+      }
+    }
+  },
+  "reviewers": {
+    "sonnet": {
+      "model": "unknown",
+      "findings": 0,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 0,
+      "good_to_fix": 0
+    }
+  },
+  "derived_by_reviewers": [],
+  "cost_details": [
+    {
+      "ts": "2026-07-13T23:16:23-04:00",
+      "model": "gemini",
+      "five_hour_used_pct": 28.6,
+      "seven_day_used_pct": 37.8,
+      "credit_available_usd": null,
+      "description": "after review"
+    }
+  ],
+  "archived": "2026-07-13T23:16:50-04:00",
+  "duration": "PT1M31S"
+}

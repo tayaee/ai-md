@@ -1,0 +1,31 @@
+{
+  "issue": 4,
+  "date": "2026-07-12T23:00:00Z",
+  "reviewers": {
+    "gemini": {
+      "model": "unknown",
+      "findings": 5,
+      "gate_rejected": 1,
+      "verify_rejected": 1,
+      "must_fix": 2,
+      "good_to_fix": 1
+    },
+    "sonnet": {
+      "model": "Claude-Sonnet-5",
+      "findings": 5,
+      "gate_rejected": 0,
+      "verify_rejected": 1,
+      "must_fix": 0,
+      "good_to_fix": 4
+    }
+  },
+  "derived": [
+    "issue-21-fixing-4.md",
+    "issue-22-fixing-4.md",
+    "issue-23-fixing-4__STATE-later.md",
+    "issue-24-fixing-4__STATE-later.md",
+    "issue-25-fixing-4__STATE-later.md",
+    "issue-26-fixing-4__STATE-later.md",
+    "issue-27-fixing-4__STATE-later.md"
+  ]
+}

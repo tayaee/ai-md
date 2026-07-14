@@ -1,0 +1,19 @@
+{
+  "issue": 1,
+  "date": "2026-07-12T21:40:00Z",
+  "reviewers": {
+    "minimax3": {
+      "findings": 4,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 0,
+      "good_to_fix": 4
+    }
+  },
+  "derived": [
+    "issue-15-fixing-1__STATE-later.md",
+    "issue-16-fixing-1__STATE-later.md",
+    "issue-17-fixing-1__STATE-later.md",
+    "issue-18-fixing-1__STATE-later.md"
+  ]
+}

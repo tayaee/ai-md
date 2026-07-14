@@ -1,0 +1,21 @@
+services:
+  engine:
+    build: ./engine
+    env_file: .env
+    volumes:
+      - ./src:/opt/aimd/src:ro     # 생성 코드가 명세 원본을 못 건드림 (ADR-0009)
+      - ./dist:/opt/aimd/dist
+    expose:
+      - "8000"                     # 호스트 비바인딩 — nginx 통해서만 접근
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dist:/opt/aimd/dist:ro
+    depends_on:
+      - engine
+    restart: unless-stopped

@@ -1,0 +1,42 @@
+{
+  "issue": 9,
+  "started": "2026-07-13T22:58:26-04:00",
+  "coders": {
+    "sonnet": {
+      "model": "claude-sonnet-5",
+      "review_outcome": {
+        "ts": "2026-07-13T23:01:50-04:00",
+        "findings_received": 2,
+        "must_fix_count": 1,
+        "good_to_fix_count": 1,
+        "refix_plans_written": 1
+      }
+    }
+  },
+  "reviewers": {
+    "sonnet": {
+      "model": "Claude Sonnet 5 (claude-sonnet-5)",
+      "findings": 2,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 1,
+      "good_to_fix": 1
+    }
+  },
+  "derived_by_reviewers": [
+    "issue-54-fixing-9-asyncio-blocking-in-registry-get__BY-sonnet.md",
+    "issue-53-fixing-9-memory-leak-in-drop-registry-locks__STATE-later__BY-sonnet.md"
+  ],
+  "archived": "2026-07-13T23:02:00-04:00",
+  "duration": "PT3M34S",
+  "cost_details": [
+    {
+      "ts": "2026-07-13T23:11:57-04:00",
+      "model": "sonnet",
+      "five_hour_used_pct": 100.0,
+      "seven_day_used_pct": 57.0,
+      "credit_available_usd": null,
+      "description": "after review"
+    }
+  ]
+}

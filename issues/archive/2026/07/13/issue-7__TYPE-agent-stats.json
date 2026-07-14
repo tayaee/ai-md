@@ -1,0 +1,47 @@
+{
+  "issue": 7,
+  "started": "2026-07-13T18:56:34Z",
+  "coders": {
+    "minimax": {
+      "model": "MiniMax-M3",
+      "mvp": {
+        "ts": "2026-07-13T18:58:22Z",
+        "loc_added": 0,
+        "static_analysis_failures": {
+          "ruff": null,
+          "pyright": null
+        }
+      },
+      "review_outcome": {
+        "ts": "2026-07-13T19:07:45Z",
+        "findings_received": 0,
+        "must_fix_count": 0,
+        "good_to_fix_count": 0,
+        "refix_plans_written": 1
+      }
+    }
+  },
+  "reviewers": {
+    "sonnet": {
+      "model": "Claude Sonnet 5 (claude-sonnet-5)",
+      "findings": 6,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 0,
+      "good_to_fix": 6
+    },
+    "gemini": {
+      "model": "Gemini 3.5 Flash (gemini-3.5-flash)",
+      "findings": 5,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 1,
+      "good_to_fix": 4
+    }
+  },
+  "derived_by_reviewers": [
+    "issue-42-fixing-7-log-format-spec-deviation__BY-gemini.md"
+  ],
+  "archived": "2026-07-13T18:59:02Z",
+  "duration": "PT2M28S"
+}

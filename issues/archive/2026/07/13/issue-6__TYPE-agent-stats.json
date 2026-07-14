@@ -1,0 +1,48 @@
+{
+  "issue": 6,
+  "started": "2026-07-13T07:33:42Z",
+  "coders": {
+    "sonnet": {
+      "model": "Claude Sonnet 5",
+      "mvp": {
+        "ts": "2026-07-13T07:33:42Z",
+        "loc_added": 218,
+        "static_analysis_failures": {
+          "ruff": null,
+          "pyright": 0
+        }
+      },
+      "review_outcome": {
+        "ts": "2026-07-13T08:00:00Z",
+        "findings_received": 7,
+        "must_fix_count": 1,
+        "good_to_fix_count": 3,
+        "refix_plans_written": 1
+      }
+    }
+  },
+  "reviewers": {
+    "gemini": {
+      "model": "Gemini 3.5 Flash",
+      "findings": 5,
+      "gate_rejected": 0,
+      "verify_rejected": 1,
+      "must_fix": 1,
+      "good_to_fix": 3
+    },
+    "minimax": {
+      "model": "MiniMax-M3 (claude-opus-4-8, 2025-Q4)",
+      "findings": 2,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 1,
+      "good_to_fix": 1
+    }
+  },
+  "derived_by_reviewers": [
+    "issue-38-fixing-6.md",
+    "issue-39-fixing-6__STATE-later.md",
+    "issue-40-fixing-6__STATE-later.md",
+    "issue-41-fixing-6__STATE-later.md"
+  ]
+}

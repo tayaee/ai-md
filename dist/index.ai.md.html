@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AIMD Tetris Landing Page</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        p.desc {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #00aa00;
+        }
+
+        #game-container {
+            position: relative;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            padding: 10px;
+            background-color: #050505;
+        }
+
+        canvas {
+            display: block;
+            background-color: #000000;
+        }
+
+        #ui-container {
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+            margin-top: 15px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .hud-label {
+            color: #00aa00;
+        }
+
+        .hud-val {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        #instructions {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #008800;
+            text-align: center;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>AIMD</h1>
+    <p class="desc">AI-powered Markdown Engine - Tetris Proof of Concept</p>
+
+    <div id="game-container">
+        <canvas id="tetris" width="300" height="600"></canvas>
+    </div>
+
+    <div id="ui-container">
+        <div>
+            <span class="hud-label">SCORE:</span>
+            <span id="score" class="hud-val">000000</span>
+        </div>
+        <div>
+            <span class="hud-label">LINES:</span>
+            <span id="lines" class="hud-val">0</span>
+        </div>
+    </div>
+
+    <div id="instructions">
+        [←] [→] : Move Block &nbsp;&nbsp;&nbsp; [↑] : Rotate Block<br>
+        [↓] : Soft Drop &nbsp;&nbsp;&nbsp; [SPACE] : Hard Drop
+    </div>
+
+    <script>
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        const grid = 30;
+        const cols = 10;
+        const rows = 20;
+
+        // Score system
+        let score = 0;
+        let lineCount = 0;
+
+        function updateScore(clearedLines) {
+            if (clearedLines > 0) {
+                // 한 줄당 100점씩 상승 (이슈 요구사항에 부합)
+                score += clearedLines * 100;
+                lineCount += clearedLines;
+                
+                document.getElementById('score').innerText = String(score).padStart(6, '0');
+                document.getElementById('lines').innerText = lineCount;
+            }
+        }
+
+        // Board representation
+        const board = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        // Tetromino shapes
+        const SHAPES = {
+            'I': [[1, 1, 1, 1]],
+            'O': [[1, 1], [1, 1]],
+            'T': [[0, 1, 0], [1, 1, 1]],
+            'S': [[0, 1, 1], [1, 1, 0]],
+            'Z': [[1, 1, 0], [0, 1, 1]],
+            'J': [[1, 0, 0], [1, 1, 1]],
+            'L': [[0, 0, 1], [1, 1, 1]]
+        };
+
+        const keys = Object.keys(SHAPES);
+
+        function randomPiece() {
+            const randKey = keys[Math.floor(Math.random() * keys.length)];
+            return {
+                matrix: SHAPES[randKey],
+                row: 0,
+                col: Math.floor((cols - SHAPES[randKey][0].length) / 2)
+            };
+        }
+
+        let piece = randomPiece();
+
+        // Draw functions
+        function drawMatrix(matrix, offsetCol, offsetRow) {
+            matrix.forEach((rowArr, r) => {
+                rowArr.forEach((value, c) => {
+                    if (value) {
+                        context.fillStyle = '#00ff00';
+                        context.strokeStyle = '#000000';
+                        context.lineWidth = 1;
+                        context.fillRect((c + offsetCol) * grid, (r + offsetRow) * grid, grid, grid);
+                        context.strokeRect((c + offsetCol) * grid, (r + offsetRow) * grid, grid, grid);
+                    }
+                });
+            });
+        }
+
+        function drawBoard() {
+            board.forEach((rowArr, r) => {
+                rowArr.forEach((value, c) => {
+                    if (value) {
+                        context.fillStyle = '#008800';
+                        context.strokeStyle = '#000000';
+                        context.lineWidth = 1;
+                        context.fillRect(c * grid, r * grid, grid, grid);
+                        context.strokeRect(c * grid, r * grid, grid, grid);
+                    } else {
+                        // grid background pattern
+                        context.strokeStyle = '#111111';
+                        context.lineWidth = 0.5;
+                        context.strokeRect(c * grid, r * grid, grid, grid);
+                    }
+                });
+            });
+        }
+
+        function draw() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard();
+            drawMatrix(piece.matrix, piece.col, piece.row);
+        }
+
+        // Collision detection
+        function collide(board, piece) {
+            const [m, o] = [piece.matrix, { x: piece.col, y: piece.row }];
+            for (let r = 0; r < m.length; ++r) {
+                for (let c = 0; c < m[r].length; ++c) {
+                    if (m[r][c] !== 0 &&
+                       (board[r + o.y] === undefined ||
+                        board[r + o.y][c + o.x] === undefined ||
+                        board[r + o.y][c + o.x] !== 0)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Merge piece to board
+        function merge(board, piece) {
+            piece.matrix.forEach((rowArr, r) => {
+                rowArr.forEach((value, c) => {
+                    if (value) {
+                        board[r + piece.row][c + piece.col] = value;
+                    }
+                });
+            });
+        }
+
+        // Rotate piece matrix
+        function rotate(matrix) {
+            const n = matrix.length;
+            const m = matrix[0].length;
+            const res = Array.from({ length: m }, () => Array(n).fill(0));
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < m; c++) {
+                    res[c][n - 1 - r] = matrix[r][c];
+                }
+            }
+            return res;
+        }
+
+        // Clear full lines
+        function clearLines() {
+            let cleared = 0;
+            for (let r = rows - 1; r >= 0; r--) {
+                if (board[r].every(val => val !== 0)) {
+                    board.splice(r, 1);
+                    board.unshift(Array(cols).fill(0));
+                    cleared++;
+                    r++; // check same row index again as lines shifted down
+                }
+            }
+            updateScore(cleared);
+        }
+
+        // Game loop parameters
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+
+        function playerDrop() {
+            piece.row++;
+            if (collide(board, piece)) {
+                piece.row--;
+                merge(board, piece);
+                clearLines();
+                piece = randomPiece();
+                if (collide(board, piece)) {
+                    // Game Over: reset
+                    board.forEach(rowArr => rowArr.fill(0));
+                    score = 0;
+                    lineCount = 0;
+                    document.getElementById('score').innerText = '000000';
+                    document.getElementById('lines').innerText = '0';
+                }
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(dir) {
+            piece.col += dir;
+            if (collide(board, piece)) {
+                piece.col -= dir;
+            }
+        }
+
+        function playerRotate() {
+            const oldMatrix = piece.matrix;
+            piece.matrix = rotate(piece.matrix);
+            let offset = 1;
+            while (collide(board, piece)) {
+                piece.col += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > piece.matrix[0].length) {
+                    piece.matrix = oldMatrix;
+                    return;
+                }
+            }
+        }
+
+        function playerHardDrop() {
+            while (!collide(board, piece)) {
+                piece.row++;
+            }
+            piece.row--;
+            merge(board, piece);
+            clearLines();
+            piece = randomPiece();
+            dropCounter = 0;
+        }
+
+        // Controls
+        document.addEventListener('keydown', event => {
+            if (event.key === 'ArrowLeft') {
+                playerMove(-1);
+            } else if (event.key === 'ArrowRight') {
+                playerMove(1);
+            } else if (event.key === 'ArrowDown') {
+                playerDrop();
+            } else if (event.key === 'ArrowUp') {
+                playerRotate();
+            } else if (event.code === 'Space') {
+                playerHardDrop();
+            }
+        });
+
+        // Game Loop
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                playerDrop();
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>

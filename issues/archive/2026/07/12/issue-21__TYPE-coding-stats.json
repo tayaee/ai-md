@@ -1,0 +1,16 @@
+{
+  "issue": 21,
+  "coders": {
+    "minimax": {
+      "model": "MiniMax-M3",
+      "mvp": {
+        "ts": "2026-07-12T23:05:00Z",
+        "loc_added": 18,
+        "static_analysis_failures": {
+          "ruff": 0,
+          "pyright": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "issue": 8,
+  "started": "2026-07-13T23:20:00Z",
+  "coders": {
+    "sonnet": {
+      "model": "Claude Sonnet 5 (claude-sonnet-5)",
+      "mvp": {
+        "ts": "2026-07-13T23:28:57Z",
+        "loc_added": 309,
+        "static_analysis_failures": {
+          "ruff": null,
+          "pyright": null
+        }
+      },
+      "review_outcome": {
+        "ts": "2026-07-13T23:52:00Z",
+        "findings_received": 7,
+        "must_fix_count": 2,
+        "good_to_fix_count": 4,
+        "refix_plans_written": 1
+      }
+    }
+  },
+  "reviewers": {
+    "gemini": {
+      "model": "Gemini 3.5 Flash (Medium)",
+      "findings": 5,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 2,
+      "good_to_fix": 3
+    },
+    "minimax": {
+      "model": "MiniMax-M3 v2.1.207.308",
+      "findings": 2,
+      "gate_rejected": 0,
+      "verify_rejected": 0,
+      "must_fix": 0,
+      "good_to_fix": 2
+    }
+  },
+  "derived_by_reviewers": [
+    "issue-43-fixing-8-atomic-write-failure-loses-existing-artifact__BY-gemini.md",
+    "issue-44-fixing-8-system-exit-bypasses-retry-crashes-process__BY-gemini.md",
+    "issue-45-fixing-8-unsandboxed-llm-code-execution-rce-risk__STATE-later__BY-gemini-minimax.md",
+    "issue-46-fixing-8-locks-dict-unbounded-growth__STATE-later__BY-gemini.md",
+    "issue-47-fixing-8-tmp-pycache-accumulation-on-import-validation__STATE-later__BY-gemini.md",
+    "issue-48-fixing-8-import-gate-fd-leak-on-write-failure__STATE-later__BY-minimax.md"
+  ],
+  "archived": "2026-07-13T23:31:54Z",
+  "duration": "PT11M54S"
+}
