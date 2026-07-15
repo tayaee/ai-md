@@ -11,4 +11,4 @@ if "%LLM_API_KEY%"=="" (
 set LLM_BASE_URL=https://api.minimax.io/v1
 set LLM_MODEL=MiniMax-M3
 set LLM_API_PROTOCOL=openai
-docker compose up -d
+docker compose up -d

@@ -33,9 +33,13 @@ def chat(system: str, user: str, settings: Settings) -> str:
 
     Returns the response text (str) on success. Raises RuntimeError on an empty response.
     """
+    log.info("llm call start provider=%s model=%s", settings.provider, settings.model)
     if settings.provider == "claude":
-        return _chat_anthropic(system, user, settings)
-    return _chat_openai_compatible(system, user, settings)
+        result = _chat_anthropic(system, user, settings)
+    else:
+        result = _chat_openai_compatible(system, user, settings)
+    log.info("llm call done provider=%s model=%s", settings.provider, settings.model)
+    return result
 
 
 def _chat_openai_compatible(system: str, user: str, settings: Settings) -> str:

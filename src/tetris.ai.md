@@ -1,10 +1,12 @@
-# 테트리스 SPA
-AIMD 프로젝트의 개념을 증명하는 테트리스 게임 SPA다.
+# Tetris SPA
+This is a Tetris game SPA (Single Page Application) that serves as a proof of
+concept for the AI.MD project.
 
-## 디자인 규칙
-- 테마: 터미널 다크 모드 (검은색 배경, 초록색 텍스트).
-- 화면 중앙에 10x20 그리드의 테트리스 보드를 렌더링한다.
+## Design Rules
+- Theme: Terminal dark mode (black background, standard color blocks).
+- Render a 10x20 grid Tetris board at the center of the screen.
 
-## 기능 요구사항
-- 사용자가 키보드 방향키로 블록을 움직일 수 있어야 한다.
-- 스코어보드가 실시간으로 작동해야 하며, 한 줄이 깨질 때마다 100점씩 올라간다.
+## Functional Requirements
+- Users rotate and move blocks using keyboard arrow keys.
+- The scoreboard must update in real time, increasing by 100 points for each cleared
+line.

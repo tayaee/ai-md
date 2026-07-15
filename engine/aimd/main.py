@@ -29,6 +29,7 @@ def create_app() -> "AIMDDispatcher":
     at import time, which makes testing inconvenient -- it must always go through
     create_app().
     """
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
     return AIMDDispatcher(watch=True)
 
 

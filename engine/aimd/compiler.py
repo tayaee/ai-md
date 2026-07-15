@@ -71,6 +71,7 @@ def compile_spec(name: str, settings: Settings) -> Path:
             raise FileNotFoundError(f"spec not found: {spec_file}")
 
         spec_text = spec_file.read_text(encoding="utf-8")
+        log.info("compile start name=%s", name)
         target = classifier.classify(spec_text, settings)
         system = SPA_SYSTEM if target == "spa" else API_SYSTEM
 
@@ -104,4 +105,5 @@ def compile_spec(name: str, settings: Settings) -> Path:
         artifacts.atomic_write(out, code)
         if stale_artifact.exists():
             stale_artifact.unlink()
+        log.info("compile ok name=%s target=%s out=%s", name, target, out)
         return out

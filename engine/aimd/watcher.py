@@ -47,6 +47,7 @@ class _SpecEventHandler(FileSystemEventHandler):
                 return
             self._last_times[name] = now
 
+        log.info("watcher triggered for %s", name)
         threading.Thread(target=self._compile, args=(name,), daemon=True).start()
 
     def _compile(self, name: str) -> None:
@@ -54,6 +55,8 @@ class _SpecEventHandler(FileSystemEventHandler):
             compiler.compile_spec(name, self.settings)
         except Exception as e:
             log.error("background compile failed for %s: %s", name, e)
+        else:
+            log.info("watcher background compile done for %s", name)
 
 
 def start_watcher(settings: Settings) -> Observer:

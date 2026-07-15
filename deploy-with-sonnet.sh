@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ -z "$LLM_API_KEY" ]; then
-    if [ -n "$SONNET_API_KEY" ]; then
-        export LLM_API_KEY="$SONNET_API_KEY"
+    if [ -n "$ANTHROPIC_API_KEY" ]; then
+        export LLM_API_KEY="$ANTHROPIC_API_KEY"
     fi
 fi
 if [ -z "$LLM_API_KEY" ]; then

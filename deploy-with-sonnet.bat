@@ -1,7 +1,7 @@
 @echo off
 if "%LLM_API_KEY%"=="" (
-    if not "%SONNET_API_KEY%"=="" (
-        set LLM_API_KEY=%SONNET_API_KEY%
+    if not "%ANTHROPIC_API_KEY%"=="" (
+        set LLM_API_KEY=%ANTHROPIC_API_KEY%
     )
 )
 if "%LLM_API_KEY%"=="" (
