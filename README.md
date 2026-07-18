@@ -8,13 +8,13 @@ Just drop a new file with the extension `.ai.md` into `src/` and see your applic
 ## Demo Use Cases
 * SPA (Tetris)
 
-  Write your single-page app requirements in `src/tetris.ai.md` and access http://localhost:8080/tetris.ai.md. Modifying the file and refreshing the browser triggers on-the-fly re-compilation.
+  Write your single-page app requirements in `src/tetris.ai.md` (or you name it) and access http://localhost:8080/tetris.ai.md. Modifying the file and refreshing the browser triggers on-the-fly re-compilation.
 
   <img src="images/spa-demo.png" alt="SPA Demo" width="555" height="640">
 
 * REST API (Temperature Conversion)
 
-  Define API endpoints in `src/convert.ai.md`. You can immediately call the compiled backend service via POST requests.
+  Define API endpoints in `src/convert.ai.md` (or you name it). You can immediately call the compiled backend service via POST requests.
 
   <img src="images/rest-api-demo.png" alt="REST API Demo" width="554" height="639">
 
